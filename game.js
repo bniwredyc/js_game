@@ -1,7 +1,7 @@
 'use strict';
 
 class Vector {
-    constructor(x, y) {
+    constructor(x = 0, y = 0) {
         this.x = x;
         this.y = y;
     }
@@ -33,19 +33,19 @@ class Actor {
         this.pos = location;
         this.size = size;
         this.speed = speed;
-        this.act = {};
+        this.act = function () {};
         Object.defineProperties(this, {
             'left': {
                 value: location.x
             },
             'top': {
-                value: location.y + size.y
+                value: location.y
             },
             'right': {
                 value: location.x + size.x
             },
             'bottom': {
-                value: location.y
+                value: location.y + size.y
             },
             'type': {
                 value: 'actor'
@@ -54,7 +54,7 @@ class Actor {
     }
     isIntersect(actor) {
         function calculateCenter(actor) {
-            return new Vector((actor.pos.x + actor.size.x) / 2, (actor.pos.y + actor.size.y) / 2)
+            return new Vector(actor.pos.x + actor.size.x / 2, actor.pos.y + actor.size.y / 2)
         }
 
         if (!(actor instanceof Actor)) {
@@ -65,10 +65,8 @@ class Actor {
         }
         let distanceX = Math.abs(calculateCenter(this).x - calculateCenter(actor).x);
         let distanceY = Math.abs(calculateCenter(this).y - calculateCenter(actor).y);
-        if (distanceX < (this.size.x + actor.size.x) && distanceY < (this.size.y + actor.size.y)) {
-            return true;
-        }
-        return false;
+
+        return distanceX < (this.size.x + actor.size.x) / 2 && distanceY < (this.size.y + actor.size.y) / 2;
     }
 }
 
