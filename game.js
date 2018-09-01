@@ -99,10 +99,20 @@ class Level {
         if (!(actor instanceof Actor)) {
             throw new Error('Объект должен быть типа Actor');
         }
-        let intersection = this.actors.find(function (element) {
+        this.actors.find(function (element) {
             if (actor.isIntersect(element)) {
                 return true;
             }
         });
+    }
+    obstacleAt(direction, size) {
+        if (!(direction instanceof Vector)) {
+            throw new Error('Направление должно быть объектом типа Vector');
+        }
+        if (!(size instanceof Vector)) {
+            throw new Error('Размер должен быть объектом типа Vector');
+        }
+        const area = new Actor(direction, size);
+        
     }
 }
