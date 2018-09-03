@@ -113,7 +113,11 @@ class Level {
         if (!(size instanceof Vector)) {
             throw new Error('Размер должен быть объектом типа Vector');
         }
-        const area = new Actor(direction, size);
-        
+        const newPosition = new Actor(direction, size);
     }
+    removeActor(actor) {
+        delete this.actors[this.actors.indexOf(actor)];
+        // actors.splice(actors.indexOf(actor));
+    }
+
 }
