@@ -71,7 +71,7 @@ class Actor {
 }
 
 class Level {
-    constructor(grid, actors) {
+    constructor(grid = [], actors = []) {
         this.grid = grid;
         this.actors = actors;
         this.player = actors[actors.find(function (actor) {
@@ -94,12 +94,13 @@ class Level {
         if (this.status !== null && this.finishDelay < 1) {
             return true;
         }
+        return false;
     }
     actorAt(actor) {
         if (!(actor instanceof Actor)) {
             throw new Error('Объект должен быть типа Actor');
         }
-        this.actors.find(function (element) {
+        return this.actors.find(function (element) {
             if (actor.isIntersect(element)) {
                 return true;
             }
