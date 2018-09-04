@@ -81,7 +81,7 @@ class Level {
         })];
         this.height = grid.length;
         let maxLength = 0;
-        grid.forEach(function(row) {
+        grid.forEach(function (row) {
             if (row.length > maxLength) {
                 maxLength = row.length;
             }
@@ -156,6 +156,55 @@ class Level {
                 this.status = 'won';
             }
         }
+    }
+}
+
+class LevelParser {
+    constructor(actorsCatalog) {
+        this.actorsCatalog = actorsCatalog;
+    }
+    actorFromSymbol(symbol) {
+        if (symbol === undefined) {
+            return undefined;
+        }
+        let key = Object.keys(this.actorsCatalog).find(function (element) {
+            if (element === symbol) {
+                return true;
+            }
+        });
+        if (key === undefined) {
+            return undefined;
+        } else {
+            return this.actorsCatalog[key];
+        }
+    }
+    obstacleFromSymbol(symbol) {
+        if (symbol === 'x') {
+            return 'wall';
+        } else if (symbol === '!') {
+            return 'lava';
+        } else {
+            return undefined;
+        }
+    }
+    createGrid(stringArray) {
+        let grid = [];
+        stringArray.forEach((string) => {
+            let gridRow = string.split('').map((symbol) => {
+                return this.obstacleFromSymbol(symbol);
+            });
+            grid.push(gridRow);
+        });
+        return grid;
+    }
+    createActors(stringArray) {
+        let actors = [];
+        stringArray.forEach((string, y) => {
+            string.split('').forEach((symbol, x) => {
+                actors.push(this.actorFromSymbol(symbol)(new Vector(x, y)));
+            });
+        });
+        return actors;
     }
 }
 
