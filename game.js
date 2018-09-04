@@ -114,12 +114,54 @@ class Level {
             throw new Error('Размер должен быть объектом типа Vector');
         }
         const newPosition = new Actor(direction, size);
+        for (let y = Math.floor(direction.y); y < direction.y + size.y; y++) {
+            for (let x = Math.floor(direction.x); x < direction.x + size.x; x++) {
+                if (y >= this.grid.length) {
+                    return 'lava';
+                }
+                else if (y < 0 || x >= this.grid[y].length || x < 0) {
+                    return 'wall';
+                }
+                else if (this.grid[y][x] === 'lava') {
+                    return 'lava';
+                } else if (this.grid[y][x] === 'wall') {
+                    console.log(1);
+                    return 'wall';
+                }
+            }
+        }
+        return undefined;
     }
     removeActor(actor) {
         delete this.actors[this.actors.indexOf(actor)];
     }
     noMoreActors(actorType) {
-        
+        for (let i = 0; i < this.actors.length; i++) {
+            if (this.actors[i].type === actorType) {
+                return false;
+            }
+        }
+        return true;
     }
-
+    playerTouched(obstacle, actor) {
+        if (this.status !== null) {
+            return;
+        }
+        if (obstacle === 'lava' || obstacle === 'fireball') {
+            this.status = 'lost';
+            return;
+        } else if (obstacle === 'coin' && actor.type === 'coin') {
+            this.removeActor(actor);
+            if (noMoreActors('coin')) {
+                this.status = 'won';
+            }
+        }
+    }
 }
+
+const grid = [
+  new Array(3),
+  ['wall', 'wall', 'lava']
+];
+const level = new Level(grid);
+runLevel(level, DOMDisplay);
