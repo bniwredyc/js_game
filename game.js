@@ -45,12 +45,11 @@ class Actor {
             },
             'bottom': {
                 value: location.y + size.y
-            },
-            'type': {
-                configurable: true,
-                value: 'actor'
             }
         });
+    }
+    get type() {
+        return 'actor';
     }
     act() {}
     isIntersect(actor) {
@@ -133,7 +132,7 @@ class Level {
         return undefined;
     }
     removeActor(actor) {
-        delete this.actors[this.actors.indexOf(actor)];
+        this.actors.splice(this.actors.indexOf(actor), 1);
     }
     noMoreActors(actorType) {
         for (let i = 0; i < this.actors.length; i++) {
@@ -219,12 +218,9 @@ class LevelParser {
 class Fireball extends Actor {
     constructor(location = new Vector(0, 0), speed = new Vector(0, 0)) {
         super(location, new Vector(1, 1), speed);
-        Object.defineProperties(this, {
-            'type': {
-                configurable: true,
-                value: 'fireball'
-            }
-        });
+    }
+    get type() {
+        return 'fireball';
     }
     getNextPosition(time = 1) {
         return new Vector(this.pos.x + this.speed.x * time, this.pos.y + this.speed.y * time)
@@ -270,15 +266,12 @@ class Coin extends Actor {
             this.pos = location.plus(new Vector(0.2, 0.1));
             this.startPos = this.pos;
         }
-        Object.defineProperties(this, {
-            'type': {
-                configurable: true,
-                value: 'coin'
-            }
-        });
         this.springSpeed = 8;
         this.springDist = 0.07;
         this.spring = Math.random() * 2 * Math.PI;
+    }
+    get type() {
+        return 'coin';
     }
     updateSpring(time = 1) {
         this.spring += this.springSpeed * time;
@@ -301,12 +294,9 @@ class Player extends Actor {
         if (location instanceof Vector) {
             this.pos = location.plus(new Vector(0, -0.5));
         }
-        Object.defineProperties(this, {
-            'type': {
-                configurable: true,
-                value: 'player'
-            }
-        });
+    }
+    get type() {
+        return 'player';
     }
 }
 
