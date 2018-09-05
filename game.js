@@ -102,7 +102,7 @@ class Level {
             throw new Error('Объект должен быть типа Actor');
         }
         return this.actors.find(function (element) {
-            if (actor.isIntersect(element)) {
+            if (element !== undefined && actor.isIntersect(element)) {
                 return true;
             }
         });
@@ -137,7 +137,7 @@ class Level {
     }
     noMoreActors(actorType) {
         for (let i = 0; i < this.actors.length; i++) {
-            if (this.actors[i].type === actorType) {
+            if (this.actors[i] !== undefined && this.actors[i].type === actorType) {
                 return false;
             }
         }
@@ -152,7 +152,7 @@ class Level {
             return;
         } else if (obstacle === 'coin' && actor.type === 'coin') {
             this.removeActor(actor);
-            if (noMoreActors('coin')) {
+            if (this.noMoreActors('coin')) {
                 this.status = 'won';
             }
         }
@@ -309,3 +309,15 @@ class Player extends Actor {
         });
     }
 }
+
+const actorDict = {
+  '@': Player,
+  'o': Coin,
+  '=': HorizontalFireball,
+  '|': VerticalFireball,
+  'v': FireRain,
+}
+const parser = new LevelParser(actorDict);
+loadLevels()
+    .then((result) => runGame(JSON.parse(result), parser, DOMDisplay)
+        .then(() => alert('YOU WON')));
