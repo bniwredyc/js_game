@@ -48,7 +48,8 @@ class Actor {
                 value: location.y + size.y
             },
             'type': {
-                value: 'actor'
+                value: 'actor',  
+                writable: true // это свойство должно быть только для чтения - пока не понятно, как в таком случае менять его в зависимости от класса-потомка
             }
         });
     }
@@ -199,18 +200,20 @@ class LevelParser {
     }
     createActors(stringArray) {
         let actors = [];
-        stringArray.forEach((string, y) => {
-            string.split('').forEach((symbol, x) => {
-                actors.push(this.actorFromSymbol(symbol)(new Vector(x, y)));
+        if (this.actorsCatalog !== undefined) {
+            stringArray.forEach((string, y) => {
+                string.split('').forEach((symbol, x) => {
+                    const actorConstructor = this.actorFromSymbol(symbol);
+                    if (typeof actorConstructor === 'function' && new actorConstructor(new Vector(x, y)) instanceof Actor) { 
+                        console.log(1);
+                        actors.push(new actorConstructor(new Vector(x, y)));
+                    }
+                });
             });
-        });
+        }
         return actors;
     }
+    parse(stringArray) {
+        return new Level(this.createGrid(stringArray), this.createActors(stringArray));
+    }
 }
-
-const grid = [
-  new Array(3),
-  ['wall', 'wall', 'lava']
-];
-const level = new Level(grid);
-runLevel(level, DOMDisplay);
