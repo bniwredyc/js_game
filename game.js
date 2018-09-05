@@ -33,20 +33,32 @@ class Actor {
         this.pos = location;
         this.size = size;
         this.speed = speed;
-        Object.defineProperties(this, {
-            'left': {
-                value: location.x
-            },
-            'top': {
-                value: location.y
-            },
-            'right': {
-                value: location.x + size.x
-            },
-            'bottom': {
-                value: location.y + size.y
-            }
-        });
+        // Object.defineProperties(this, {
+        //     'left': {
+        //         value: location.x
+        //     },
+        //     'top': {
+        //         value: location.y
+        //     },
+        //     'right': {
+        //         value: location.x + size.x
+        //     },
+        //     'bottom': {
+        //         value: location.y + size.y
+        //     }
+        // });
+    }
+    get left() {
+        return this.pos.x;
+    }
+    get top() {
+        return this.pos.y;
+    }
+    get right() {
+        return this.pos.x + this.size.x;
+    }
+    get bottom() {
+        return this.pos.y + this.size.y;
     }
     get type() {
         return 'actor';
