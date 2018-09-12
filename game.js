@@ -9,19 +9,13 @@ class Vector {
         if (!(vector instanceof Vector)) {
             throw new Error('Можно прибавлять к вектору только вектор типа Vector');
         }
-        // если значение присваивается переменной 1 раз, то лучше использовать const
-        // данном случае можно сообще обойтись без объявления переменной
-        // и написать просто return new Vector...
-        let newVector = new Vector(this.x + vector.x, this.y + vector.y);
-        return newVector;
+        return new Vector(this.x + vector.x, this.y + vector.y);
     }
     times(multiplier) {
         if (typeof multiplier !== 'number') {
             throw new Error('Множитель должен быть числом');
         }
-        // см. выше
-        let newVector = new Vector(this.x * multiplier, this.y * multiplier);
-        return newVector;
+        return new Vector(this.x * multiplier, this.y * multiplier);
     }
 }
 
@@ -29,11 +23,11 @@ class Actor {
     constructor(location = new Vector(0, 0), size = new Vector(1, 1), speed = new Vector(0, 0)) {
         if (!(location instanceof Vector)) {
             throw new Error('Расположение должно быть типа Vector');
-        // в if выбрасывается исключение, else можно не писать,
-        // т.к. если зайдёт в if то выполнение функции прервётся
-        } else if (!(size instanceof Vector)) {
+        }
+        if (!(size instanceof Vector)) {
             throw new Error('Размер должно быть типа Vector');
-        } else if (!(speed instanceof Vector)) {
+        }
+        if (!(speed instanceof Vector)) {
             throw new Error('Скорость должна быть типа Vector');
         }
         this.pos = location;
@@ -81,13 +75,8 @@ class Level {
     constructor(grid = [], actors = []) {
         this.grid = grid;
         this.actors = actors;
-        this.player = actors.find(function (actor) {
-            // тут можно убрать if и возвращать результат сравнения
-            // так же лучше исользовать стрелочные функции
-            // (код компактнее получается)
-            if (actor.type === 'player') {
-                return true
-            }
+        this.player = actors.find((actor) => {
+            return actor.type === 'player';
         });
         this.height = grid.length;
         let maxLength = 0;
@@ -102,25 +91,14 @@ class Level {
         this.finishDelay = 1;
     }
     isFinished() {
-        // если результатов выражение в if является true или false,
-        // и в ветках return true и return false
-        // то лучше писать просто
-        // return <выражение в if>
-        if (this.status !== null && this.finishDelay < 1) {
-            return true;
-        }
-        return false;
+        return this.status !== null && this.finishDelay < 1;
     }
     actorAt(actor) {
         if (!(actor instanceof Actor)) {
             throw new Error('Объект должен быть типа Actor');
         }
-        // стрелочная функция будет короче
-        return this.actors.find(function (element) {
-            // первая половина проверки лишняя
-            if (element !== undefined && actor.isIntersect(element)) {
-                return true;
-            }
+        return this.actors.find((element) => {
+            return actor.isIntersect(element);
         });
     }
     obstacleAt(direction, size) {
@@ -156,9 +134,6 @@ class Level {
                 }
             }
         }
-        // лишняя строчка
-        // функция и так возвращает undefined, если не указано иное
-        return undefined;
     }
     removeActor(actor) {
         // если объект не будет найден, то функция отработает некорректно
@@ -183,7 +158,8 @@ class Level {
             this.status = 'lost';
             return;
         // раз выше return, то else можно убрать
-        } else if (obstacle === 'coin' && actor.type === 'coin') {
+        }
+        if (obstacle === 'coin' && actor.type === 'coin') {
             this.removeActor(actor);
             if (this.noMoreActors('coin')) {
                 this.status = 'won';
@@ -204,7 +180,7 @@ class LevelParser {
         if (symbol === undefined) {
             return undefined;
         }
-        let key = Object.keys(this.actorsCatalog).find(function (element) {
+        let key = Object.keys(this.actorsCatalog).find((element) => {
             if (element === symbol) {
                 return true;
             }
@@ -218,12 +194,9 @@ class LevelParser {
     obstacleFromSymbol(symbol) {
         if (symbol === 'x') {
             return 'wall';
-        // else можно бурать
-        } else if (symbol === '!') {
+        }
+        if (symbol === '!') {
             return 'lava';
-        } else {
-            // лишняя строчка
-            return undefined;
         }
     }
     createGrid(stringArray) {
@@ -359,7 +332,7 @@ const actorDict = {
   '=': HorizontalFireball,
   '|': VerticalFireball,
   'v': FireRain,
-} // точка с запятой :)
+};
 const parser = new LevelParser(actorDict);
 loadLevels()
     .then((result) => runGame(JSON.parse(result), parser, DOMDisplay)
