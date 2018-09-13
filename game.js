@@ -79,6 +79,8 @@ class Level {
             return actor.type === 'player';
         });
         this.height = grid.length;
+        // тулу лучше использовать стрелочную функцию
+        // можно даже краткую форму с тренарным опретором сравнения
         this.width = grid.reduce(function (maxLength, row) {
             if (row.length > maxLength) {
                 return row.length;
@@ -95,6 +97,8 @@ class Level {
         if (!(actor instanceof Actor)) {
             throw new Error('Объект должен быть типа Actor');
         }
+        // можно использовать краткую форму записи стрелочной функции
+        // если аргумент 1, то скобки можно опускать
         return this.actors.find((element) => {
             return actor.isIntersect(element);
         });
@@ -107,18 +111,26 @@ class Level {
             throw new Error('Размер должен быть объектом типа Vector');
         }
 
+        // лучше так не писать
+        // определите гранци, а потом идите в цикле
+        // не меняйте переменные с границами
         let flooredY = Math.floor(direction.y);
         let flooredX = Math.floor(direction.x);
 
         if (flooredY >= this.grid.length) {
             return 'lava';
         }
+        // вместо this.grid[flooredY].length нужно использовать другое поле
         if (flooredY < 0 || flooredX >= this.grid[flooredY].length || flooredX < 0) {
             return 'wall';
         }
 
+        // лучше расчитать все границы,, а потом идти циклами
         for (flooredY; flooredY < direction.y + size.y; flooredY++) {
             for (flooredX; flooredX < direction.x + size.x; flooredX++) {
+                // this.grid[flooredY][flooredX] лучше записать в переменную,
+                // чтобы 2 раза не писать
+                // и я бы убратл !== undefined
                 if (this.grid[flooredY][flooredX] !== undefined) {
                     return this.grid[flooredY][flooredX];
                 }
@@ -126,11 +138,14 @@ class Level {
         }
     }
     removeActor(actor) {
+        // поиск в массиве осуществляется 2 раза
         if (this.actors.indexOf(actor) !== -1) {
             this.actors.splice(this.actors.indexOf(actor), 1);
         }
     }
     noMoreActors(actorType) {
+        // проверку того, что в actors нет пустых объектов
+        // лучше осуществлять не здесь
         return !this.actors.some((actor) => actor !== undefined && actor.type === actorType);
     }
     playerTouched(obstacle, actor) {
@@ -155,6 +170,7 @@ class LevelParser {
         this.actorsCatalog = actorsCatalog;
     }
     actorFromSymbol(symbol) {
+        // посмотрите внимательно на этот код и подумайте что с ним надо сделать
         let key = Object.keys(this.actorsCatalog).find((element) => {
             if (element === symbol) {
                 return true;
@@ -171,6 +187,7 @@ class LevelParser {
         }
     }
     createGrid(stringArray) {
+        // тут можно использовать краткую форму записи стрелочной функции
         return stringArray.map((string) => {
             return string.split('').map((symbol) => {
                 return this.obstacleFromSymbol(symbol);
@@ -182,6 +199,7 @@ class LevelParser {
             string.split('').forEach((symbol, x) => {
                 const actorConstructor = this.actorFromSymbol(symbol);
                 if (typeof actorConstructor === 'function') {
+                    // значение присваивается 1 раз - const
                     let newActor = new actorConstructor(new Vector(x, y));
                     if (newActor instanceof Actor) {
                         actors.push(newActor);
