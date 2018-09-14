@@ -51,42 +51,31 @@ class Actor {
     }
     act() {}
     isIntersect(actor) {
-        function calculateCenter(actor) {
-            return new Vector(actor.pos.x + actor.size.x / 2, actor.pos.y + actor.size.y / 2)
-        }
-
         if (!(actor instanceof Actor)) {
             throw new Error('Объект должен быть типа Actor');
         }
         if (this === actor) {
             return false;
         }
-        // тут можно упростить
-        // если объект левее, правее, выше или ниже заданного,
-        // то они не пересеваются
-        let distanceX = Math.abs(calculateCenter(this).x - calculateCenter(actor).x);
-        let distanceY = Math.abs(calculateCenter(this).y - calculateCenter(actor).y);
 
-        return distanceX < (this.size.x + actor.size.x) / 2 && distanceY < (this.size.y + actor.size.y) / 2;
+        return this.left < actor.right && this.right > actor.left && this.top < actor.bottom && this.bottom > actor.top;
     }
 }
 
 class Level {
     constructor(grid = [], actors = []) {
+        actors.forEach((actor) => {
+            if (actor === undefined) {
+                throw new Error('Объект должен быть типа Actor');
+            }
+        });
         this.grid = grid;
         this.actors = actors;
         this.player = actors.find((actor) => {
             return actor.type === 'player';
         });
         this.height = grid.length;
-        // тулу лучше использовать стрелочную функцию
-        // можно даже краткую форму с тренарным опретором сравнения
-        this.width = grid.reduce(function (maxLength, row) {
-            if (row.length > maxLength) {
-                return row.length;
-            }
-            return maxLength;
-        }, 0);
+        this.width = grid.reduce((maxLength, row) => row.length > maxLength ? row.length : maxLength, 0);
         this.status = null;
         this.finishDelay = 1;
     }
@@ -97,11 +86,7 @@ class Level {
         if (!(actor instanceof Actor)) {
             throw new Error('Объект должен быть типа Actor');
         }
-        // можно использовать краткую форму записи стрелочной функции
-        // если аргумент 1, то скобки можно опускать
-        return this.actors.find((element) => {
-            return actor.isIntersect(element);
-        });
+        return this.actors.find((element) => actor.isIntersect(element));
     }
     obstacleAt(direction, size) {
         if (!(direction instanceof Vector)) {
@@ -111,42 +96,34 @@ class Level {
             throw new Error('Размер должен быть объектом типа Vector');
         }
 
-        // лучше так не писать
-        // определите гранци, а потом идите в цикле
-        // не меняйте переменные с границами
-        let flooredY = Math.floor(direction.y);
-        let flooredX = Math.floor(direction.x);
-
-        if (flooredY >= this.grid.length) {
+        const topBorder = direction.y;
+        const leftBorder = direction.x;
+        const botBorder = direction.y + size.y;
+        const rigthBorder = direction.x + size.x;
+        const flooredTopBorder = Math.floor(topBorder);
+        const flooredLeftBorder = Math.floor(leftBorder);
+        if (botBorder >= this.grid.length) {
             return 'lava';
         }
-        // вместо this.grid[flooredY].length нужно использовать другое поле
-        if (flooredY < 0 || flooredX >= this.grid[flooredY].length || flooredX < 0) {
+        if (topBorder < 0 || rigthBorder >= this.width || leftBorder < 0) {
             return 'wall';
         }
-
-        // лучше расчитать все границы,, а потом идти циклами
-        for (flooredY; flooredY < direction.y + size.y; flooredY++) {
-            for (flooredX; flooredX < direction.x + size.x; flooredX++) {
-                // this.grid[flooredY][flooredX] лучше записать в переменную,
-                // чтобы 2 раза не писать
-                // и я бы убратл !== undefined
-                if (this.grid[flooredY][flooredX] !== undefined) {
-                    return this.grid[flooredY][flooredX];
+        for (let y = flooredTopBorder; y < botBorder; y++) {
+            for (let x = flooredLeftBorder; x < rigthBorder; x++) {
+                if (this.grid[y][x] !== undefined) {
+                    return this.grid[y][x]
                 }
             }
         }
     }
     removeActor(actor) {
-        // поиск в массиве осуществляется 2 раза
-        if (this.actors.indexOf(actor) !== -1) {
-            this.actors.splice(this.actors.indexOf(actor), 1);
+        const actorIndex = this.actors.indexOf(actor);
+        if (actorIndex !== -1) {
+            this.actors.splice(actorIndex, 1);
         }
     }
     noMoreActors(actorType) {
-        // проверку того, что в actors нет пустых объектов
-        // лучше осуществлять не здесь
-        return !this.actors.some((actor) => actor !== undefined && actor.type === actorType);
+        return !this.actors.some((actor) => actor.type === actorType);
     }
     playerTouched(obstacle, actor) {
         if (this.status !== null) {
@@ -170,13 +147,7 @@ class LevelParser {
         this.actorsCatalog = actorsCatalog;
     }
     actorFromSymbol(symbol) {
-        // посмотрите внимательно на этот код и подумайте что с ним надо сделать
-        let key = Object.keys(this.actorsCatalog).find((element) => {
-            if (element === symbol) {
-                return true;
-            }
-        });
-        return this.actorsCatalog[key];
+        return this.actorsCatalog[Object.keys(this.actorsCatalog).find((element) => element === symbol)];
     }
     obstacleFromSymbol(symbol) {
         if (symbol === 'x') {
@@ -187,20 +158,14 @@ class LevelParser {
         }
     }
     createGrid(stringArray) {
-        // тут можно использовать краткую форму записи стрелочной функции
-        return stringArray.map((string) => {
-            return string.split('').map((symbol) => {
-                return this.obstacleFromSymbol(symbol);
-            });
-        });
+        return stringArray.map((string) => string.split('').map((symbol) => this.obstacleFromSymbol(symbol)));
     }
     createActors(stringArray) {
         return stringArray.reduce((actors, string, y) => {
             string.split('').forEach((symbol, x) => {
                 const actorConstructor = this.actorFromSymbol(symbol);
                 if (typeof actorConstructor === 'function') {
-                    // значение присваивается 1 раз - const
-                    let newActor = new actorConstructor(new Vector(x, y));
+                    const newActor = new actorConstructor(new Vector(x, y));
                     if (newActor instanceof Actor) {
                         actors.push(newActor);
                     }
