@@ -64,13 +64,19 @@ class Actor {
 
 class Level {
     constructor(grid = [], actors = []) {
+        // это лишняя проверка
         actors.forEach((actor) => {
+            // сравнение с undefined используется редко
+            // обычно пишут просто if (actor)
+            // это покрывает случай, когда переменная равна null
             if (actor === undefined) {
+                // вы проверяете переменную на undefined, а не её тип
                 throw new Error('Объект должен быть типа Actor');
             }
         });
         this.grid = grid;
         this.actors = actors;
+        // тут можно использовать сокращённую форму записи стрелочной функции
         this.player = actors.find((actor) => {
             return actor.type === 'player';
         });
@@ -96,6 +102,8 @@ class Level {
             throw new Error('Размер должен быть объектом типа Vector');
         }
 
+        // тут достаточно четырёх переменных
+        // и нехватает округлений
         const topBorder = direction.y;
         const leftBorder = direction.x;
         const botBorder = direction.y + size.y;
@@ -110,6 +118,9 @@ class Level {
         }
         for (let y = flooredTopBorder; y < botBorder; y++) {
             for (let x = flooredLeftBorder; x < rigthBorder; x++) {
+                // this.grid[y][x] лучше записать в переменную
+                // чтобы 2 раза не писать
+                // и !== undefined тут можно опустить
                 if (this.grid[y][x] !== undefined) {
                     return this.grid[y][x]
                 }
@@ -147,6 +158,8 @@ class LevelParser {
         this.actorsCatalog = actorsCatalog;
     }
     actorFromSymbol(symbol) {
+        // посмотрите внимательно что делает выражение в квадратных скобках
+        // и осознайте его бессмысленность
         return this.actorsCatalog[Object.keys(this.actorsCatalog).find((element) => element === symbol)];
     }
     obstacleFromSymbol(symbol) {
